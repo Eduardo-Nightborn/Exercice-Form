@@ -6,7 +6,7 @@ export const getFormDataFromUrl = () => {
     const formData: Partial<FormData> = {};
     // Convert URL parameters back to form data
     params.forEach((value, key) => {
-        formData[key as keyof FormData] = value;
+        (formData as any)[key] = value;
     });
     return formData;
 };
