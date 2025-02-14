@@ -1,141 +1,157 @@
-import { useState } from 'react'
-import { TextInput } from './../TextInput/index';
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+type FormData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  birthDate: string;
+  phone: string;
+  photo: File;
+};
+
+const schema = z.object({
+  firstName: z.string().min(1, { message: "Le prénom est requis" }),
+  lastName: z.string().min(1, { message: "Le nom est requis" }),
+  email: z.string().email({ message: "Email invalide " }),
+  birthDate: z.string().min(1, { message: "La date de naissance est requise" }),
+  phone: z.string().regex(/^(\+32|0)[1-9][0-9]{7,8}$/, {
+    message: "Numéro de téléphone belge invalide",
+  }),
+  photo: z
+    .instanceof(File)
+    .refine((file) => file instanceof File, "File is required")
+    .refine((file) => file.size <= 5000000, "Max size is 5MB.")
+    .refine(
+      (file) => file.type === "image/jpeg" || file.type === "image/png",
+      "Format invalide. Utilisez JPG ou PNG."
+    ),
+});
 
 function App() {
-  const [firstName, setFirstName] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [email, setEmail] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [phone, setPhone] = useState("");
-  const [picture, setPicture] = useState<File | null>(null);
+  const form = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if(!verifyEmail(email)){
-      alert('Email invalide');
-      return;
-    }
-    if(!verifyTel(phone)){
-      alert('Téléphone invalide');
-      return;
-    }
-    if(picture && !verifyImgSize(picture)){
-      alert('Image invalide');
-      return;
-    }
-
-    alert(`Formulaire envoyé avec les informations suivantes :
-    Prénom: ${firstName}
-    Nom: ${lastname}
-    Email: ${email}
-    Date de naissance: ${birthDate}
-    Téléphone: ${phone}
-    Photo: ${picture ? picture.name : 'Aucune'}`);
-
-    console.log({
-      firstName,
-      lastname,
-      email,
-      birthDate,
-      phone,
-      picture,
-    });
-
-    setFirstName("");
-    setLastname("");
-    setEmail("");
-    setBirthDate("");
-    setPhone("");
-    setPicture(null); 
-  };
-
-
-  const verifyEmail = (email: string) => {
-    const re = /\S+@\S+\.\S+/;
-    return re.test(email);
-  };
-
-  const verifyTel = (tel: string) => {
-    const re = /^(\+32|0)[1-9][0-9]{7,8}$/;
-    return re.test(tel);
-  };
-
-  const verifyImgSize = (file: File) => {
-    const validExtensions = ['image/jpeg', 'image/png'];
-    const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
-    if (!validExtensions.includes(file.type)) {
-      return false;
-    }
-    if (file.size > maxSizeInBytes) {
-      return false;
-    }
-    return true;
+  const onSubmit = (data: FormData) => {
+    console.log(data);
+    alert(
+      `Données envoyées:\n\n` +
+      `Prénom: ${data.firstName}\n` +
+      `Nom: ${data.lastName}\n` +
+      `Email: ${data.email}\n` +
+      `Date de naissance: ${data.birthDate}\n` +
+      `Téléphone: ${data.phone}\n` +
+      `Photo: ${data.photo.name}`
+    );
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <form onSubmit={onSubmit} className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-semibold text-center mb-4">Formulaire</h2>
-
-        <TextInput
-          type='text'
-          id='prenom'
-          name='prenom'
-          required={true}
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-        <TextInput
-          type='text'
-          id='nom'
-          name='nom'
-          required={true}
-          value={lastname}
-          onChange={(e) => setLastname(e.target.value)}
-        />
-        <TextInput
-          type='email'
-          id='email'
-          name='email'
-          required={true}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <TextInput
-          type='date'
-          id='date'
-          name='date'
-          required={true}
-          value={birthDate}
-          onChange={(e) => setBirthDate(e.target.value)}
-        />
-        <TextInput
-          type='tel'
-          id='telephone'
-          name='telephone'
-          required={true}
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-        <TextInput
-          type='file'
-          id='photo'
-          name='photo'
-          required={true}
-          onChange={(e) => {
-            if (e.target.files && e.target.files[0]) {
-              setPicture(e.target.files[0]);
-            }
-          }} 
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
-        >
-          Envoyer
-        </button>
-      </form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="First Name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="LastName" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="email@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="birthDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Birth Date</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone Number</FormLabel>
+                <FormControl>
+                  <Input type="tel" placeholder="+32465256614" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo"
+            render={({ field: { value, onChange, ...field } }) => (
+              <FormItem>
+                <FormLabel>Profile Picture</FormLabel>
+                <FormControl>
+                  <Input
+                    type="file"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        onChange(e.target.files[0]);
+                      }
+                    }}
+                    {...field}
+                    value={undefined}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit">Submit</Button>
+        </form>
+      </Form>
     </div>
   );
-};
-export default App
+}
+export default App;
