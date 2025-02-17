@@ -1,27 +1,22 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import {
-  getFormDataFromUrl,
-  createUrlWithFormData,
-} from "../utils/querryParams";
+import { useFormContext } from "react-hook-form";
+import { FormData } from "../../types/types";
 import { RadioInput } from "../RadioInput";
-import { CheckboxGroup } from "../CheckBoxInput";
+import { CheckboxInput } from "../CheckBoxInput";
 
 
 export const Step3Form = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState(() => getFormDataFromUrl());
+  const { register, handleSubmit, formState: { errors } } = useFormContext<FormData>();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const url = createUrlWithFormData(formData);
-    navigate(`/success${url}`);
+  const onSubmit = (data: Partial<FormData>) => {
+    navigate('/success');
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen">
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md"
       >
         <h2 className="text-2xl font-semibold text-center mb-4">
@@ -29,37 +24,26 @@ export const Step3Form = () => {
         </h2>
 
         <RadioInput
-          name="Training Type"
+          name="trainingType"
           options={[
             { value: "full-time", label: "Full Time" },
             { value: "part-time", label: "Part Time" },
             { value: "weekends", label: "Weekends" },
           ]}
           required={true}
-          selectedValue={formData.trainingType}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              trainingType: e.target.value,
-            })
-          }
+          register={register}
         />
 
-        <CheckboxGroup
-          name="Technologies"
+        <CheckboxInput
+          name="tec"
+          required={true}
           options={[
             { value: "React", label: "React" },
             { value: "Node.js", label: "Node.js" },
             { value: "Python", label: "Python" },
             { value: "Java", label: "Java" },
           ]}
-          selectedValues={formData.interessedTechs || []}
-          onChange={(value) =>
-            setFormData({
-              ...formData,
-              interessedTechs: [...(formData.interessedTechs || []), value],
-            })
-          }
+         register={register}
         />
         <button
           type="submit"

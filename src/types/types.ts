@@ -6,7 +6,7 @@ export interface FormData {
     email: string;
     birthDate: string;
     phone: string;
-    photo: File;
+    photo: FileList;
     //professional informations
     educationLevel: string;
     yearsExperience: string;
