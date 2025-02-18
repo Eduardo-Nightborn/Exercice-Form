@@ -1,24 +1,35 @@
 // types.ts
 export interface FormData {
-    //personal informations
-    firstName: string;
-    lastName: string;
-    email: string;
-    birthDate: string;
-    phone: string;
-    photo: FileList;
-    //professional informations
-    educationLevel: string;
-    yearsExperience: string;
-    expertiseArea: string;
-    professionalsURL: string[];
+  personalInfo: PersonalInfo;
+  professionalInfo : professionalInfo;
+  accountInfo: accountInfo;
+}
 
-    //info compte
-    trainingType: string;
-    interessedTechs: string[];
-    }
+export interface PersonalInfo {
+  // Step1 : personal informations
+  firstName: string;
+  lastName: string;
+  email: string;
+  birthDate: string;
+  phone: string;
+  photo: FileList;
+}
 
-    export interface Option {
-        value: string;
-        label: string;
-      }
+export interface professionalInfo{
+  //Step2 : professional informations
+  educationLevel: string;
+  yearsExperience: string;
+  expertiseArea: string;
+  professionalsURL: string;
+}
+
+export interface accountInfo{
+  //Step3: Acount Info
+  trainingType: string;
+  interessedTechs: string[];
+}
+
+export interface Option {
+  value: string;
+  label: string;
+}

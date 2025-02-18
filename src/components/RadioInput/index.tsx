@@ -5,13 +5,15 @@ interface RadioInputProps {
   options: { label: string; value: string }[];
   required: boolean;
   register: UseFormRegister<any>;
+  labeltxt?:string
+
 }
 
-export const RadioInput = ({ name, options, required, register }: RadioInputProps) => {
+export const RadioInput = ({ name, options, required, register ,labeltxt}: RadioInputProps) => {
   return (
     <div className="mb-4">
       <label htmlFor={name} className="block text-gray-700 font-medium">
-        {name.charAt(0).toUpperCase() + name.slice(1)} :
+        {labeltxt ? labeltxt : name.charAt(0).toUpperCase() + name.slice(1)}
       </label>
       <div className="mt-2 space-y-2">
         {options.map((option) => (

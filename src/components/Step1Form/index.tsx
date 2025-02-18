@@ -1,23 +1,39 @@
 import { useNavigate } from "react-router-dom";
 import { TextInput } from "../TextInput";
-import { useFormContext } from "react-hook-form";
-import { FormData } from "../../types/types";
+import { useForm , useFormContext} from 'react-hook-form';
+import { PersonalInfo, FormData } from "../../types/types";
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const schema = z.object({
+  firstName: z.string().min(1, { message: 'Le prénom est requis' }),
+  lastName: z.string().min(1, { message: 'Le nom est requis' }),
+  email: z.string().email({ message: 'Email invalide' }),
+  birthDate: z.string().min(1, { message: 'La date de naissance est requise' }),
+  phone: z.string().regex(/^(\+32|0)[1-9][0-9]{7,8}$/, { message: 'Numéro de téléphone belge invalide' }),
+  photo: z.instanceof(FileList).refine(files => files.length > 0, { message: 'La photo de profil est requise' }),
+});
+
 
 export const Step1Form = () => {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useFormContext<FormData>();
+  const { setValue } = useFormContext<FormData>();
+  const { register, handleSubmit, formState: { errors } } = useForm<PersonalInfo>({
+    resolver:zodResolver(schema),
+  });
 
-
-  const onSubmit = (data: FormData) => {
-    alert("Test!!!");
-    console.log(data);  
-    navigate('/step2'); 
+  const onSubmit = (data: PersonalInfo) => {
+    Object.keys(data).forEach((key) => {
+      setValue(`personalInfo.${key as keyof PersonalInfo}`, data[key as keyof PersonalInfo]);
+    });
+    navigate('/step2');
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen">
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit)}        
         className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md"
       >
         <h2 className="text-2xl font-semibold text-center mb-4">

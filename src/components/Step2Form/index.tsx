@@ -1,14 +1,30 @@
 import { useNavigate } from "react-router-dom";
-import { useFormContext } from "react-hook-form";
+import { useForm, useFormContext } from "react-hook-form";
 import { TextInput } from "../TextInput";
 import { SelectInput } from "../SelectInput";
-import { Option } from "../../types/types";
+import { Option, FormData, professionalInfo } from "../../types/types";
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const schema = z.object({
+  educationLevel: z.string().min(0, { message: 'Le niveau d\'études est requis' }),
+  yearsExperience: z.string().min(0, { message: 'Le nombre d\'années d\'expérience est requis' }),
+  expertiseArea: z.string().min(0, { message: 'Le domaine d\'expertise est requis' }),
+  professionalsURL: z.string(z.string().url({ message: 'L\'URL doit être valide' })).min(0, { message: 'L\'URL du portfolio est requise' }),
+});
+
 
 export const Step2Form = () => {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useFormContext<FormData>();
+  const { setValue } = useFormContext<FormData>();
+  const { register, handleSubmit, formState: { errors } } = useForm<professionalInfo>({
+    resolver:zodResolver(schema),
+  })
 
-  const onSubmit = (data: Partial<FormData>) => {
+  const onSubmit = (data: professionalInfo) => {
+    Object.keys(data).forEach((key) => {
+      setValue(`professionalInfo.${key as keyof professionalInfo}`, data[key as keyof professionalInfo]);
+    });
     navigate('/step3');
   };
 
@@ -44,34 +60,42 @@ export const Step2Form = () => {
 
         <SelectInput
           id="educationLevel"
-          name="Education Level"
+          name="educationLevel"
+          labeltxt="Education Level"
           required={true}
           register={register}
           options={educationLevels}
         />
+        {errors.educationLevel && <p className="text-red-500 text-sm">{errors.educationLevel.message}</p>}
         <TextInput
           type="number"
           id="experience"
-          name="Years of Experience"
+          name="yearsExperience"
+          labeltxt="Years of Experience"
           required={true}
           register={register}
         />
+        {errors.yearsExperience && <p className="text-red-500 text-sm">{errors.yearsExperience.message}</p>}
         <SelectInput
           id="expertiseArea"
-          name="Expertise Area"
+          name="expertiseArea"
+          labeltxt="Expertise Area"
           required={true}
           register={register}
           options={expertiseAreas}
         />
-
+        {errors.expertiseArea && <p className="text-red-500 text-sm">{errors.expertiseArea.message}</p>}
         <TextInput
           type="text"
           id="professionalsURL"
-          name="Professionals URL"
+          labeltxt="Professionals URls"
+          name="professionalsURL"
           required={true}
           register={register}
         />
-        
+        {errors.professionalsURL && <p className="text-red-500 text-sm">{errors.professionalsURL.message}</p>}
+
+
         <button
           type="submit"
           className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"

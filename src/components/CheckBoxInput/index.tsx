@@ -5,13 +5,14 @@ interface CheckboxGroupProps {
   options: { label: string; value: string }[];
   required: boolean;
   register: UseFormRegister<any>;
+  labeltxt?:string
 }
 
-export const CheckboxInput= ({ name, options, required, register }: CheckboxGroupProps) => {
+export const CheckboxInput= ({ name, options, required, register, labeltxt }: CheckboxGroupProps) => {
   return (
     <div className="mb-4">
       <label htmlFor={name} className="block text-gray-700 font-medium">
-        {name.charAt(0).toUpperCase() + name.slice(1)} :
+      {labeltxt ? labeltxt : name.charAt(0).toUpperCase() + name.slice(1)}
       </label>
       <div className="mt-2 space-y-2">
         {options.map((option) => (
