@@ -1,31 +1,61 @@
-import { useNavigate } from "react-router-dom";
-import { useForm, useFormContext } from "react-hook-form";
-import { TextInput } from "../TextInput";
-import { SelectInput } from "../SelectInput";
+import { Link, useNavigate } from "react-router-dom";
+import { Controller, useForm, useFormContext } from "react-hook-form";
 import { Option, FormData, professionalInfo } from "../../types/types";
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { Input } from "../ui/input";
+import { Progress } from "@/components/ui/progress"
+
 
 const schema = z.object({
-  educationLevel: z.string().min(0, { message: 'Le niveau d\'études est requis' }),
-  yearsExperience: z.string().min(0, { message: 'Le nombre d\'années d\'expérience est requis' }),
-  expertiseArea: z.string().min(0, { message: 'Le domaine d\'expertise est requis' }),
-  professionalsURL: z.string(z.string().url({ message: 'L\'URL doit être valide' })).min(0, { message: 'L\'URL du portfolio est requise' }),
+  educationLevel: z
+    .string()
+    .min(0, { message: "Le niveau d'études est requis" }),
+  yearsExperience: z
+    .string()
+    .min(0, { message: "Le nombre d'années d'expérience est requis" }),
+  expertiseArea: z
+    .string()
+    .min(0, { message: "Le domaine d'expertise est requis" }),
+  professionalsURL: z
+    .string(z.string().url({ message: "L'URL doit être valide" }))
+    .min(0, { message: "L'URL du portfolio est requise" }),
 });
-
 
 export const Step2Form = () => {
   const navigate = useNavigate();
   const { setValue } = useFormContext<FormData>();
-  const { register, handleSubmit, formState: { errors } } = useForm<professionalInfo>({
-    resolver:zodResolver(schema),
-  })
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<professionalInfo>({
+    resolver: zodResolver(schema),
+  });
 
   const onSubmit = (data: professionalInfo) => {
+    alert(JSON.stringify(data));
     Object.keys(data).forEach((key) => {
-      setValue(`professionalInfo.${key as keyof professionalInfo}`, data[key as keyof professionalInfo]);
+      setValue(
+        `professionalInfo.${key as keyof professionalInfo}`,
+        data[key as keyof professionalInfo]
+      );
     });
-    navigate('/step3');
+    navigate("/step3");
   };
 
   const educationLevels: Option[] = [
@@ -47,62 +77,146 @@ export const Step2Form = () => {
     { value: "DataScience", label: "Data Science" },
   ];
 
-
   return (
-    <div className="flex justify-center items-center min-h-screen ">
+    <div className="flex flex-col justify-center items-center min-h-screen ">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md"
+        className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md justify-center items-center"
       >
         <h2 className="text-2xl font-semibold text-center mb-4">
           Professional Information
         </h2>
+        <div className="flex flex-col items-center justify-center my-3 ">
+          <FormField
+            control={control}
+            name="educationLevel"
+            defaultValue=""
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Education Level</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-70">
+                      <SelectValue placeholder="Select an education level" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {educationLevels.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className="w-full mt-1 my-3 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
 
-        <SelectInput
-          id="educationLevel"
-          name="educationLevel"
-          labeltxt="Education Level"
-          required={true}
-          register={register}
-          options={educationLevels}
-        />
-        {errors.educationLevel && <p className="text-red-500 text-sm">{errors.educationLevel.message}</p>}
-        <TextInput
-          type="number"
-          id="experience"
-          name="yearsExperience"
-          labeltxt="Years of Experience"
-          required={true}
-          register={register}
-        />
-        {errors.yearsExperience && <p className="text-red-500 text-sm">{errors.yearsExperience.message}</p>}
-        <SelectInput
-          id="expertiseArea"
-          name="expertiseArea"
-          labeltxt="Expertise Area"
-          required={true}
-          register={register}
-          options={expertiseAreas}
-        />
-        {errors.expertiseArea && <p className="text-red-500 text-sm">{errors.expertiseArea.message}</p>}
-        <TextInput
-          type="text"
-          id="professionalsURL"
-          labeltxt="Professionals URls"
-          name="professionalsURL"
-          required={true}
-          register={register}
-        />
-        {errors.professionalsURL && <p className="text-red-500 text-sm">{errors.professionalsURL.message}</p>}
+          {errors.educationLevel && (
+            <p className="text-red-500 text-sm">
+              {errors.educationLevel.message}
+            </p>
+          )}
+        </div>
+        <div className="flex flex-col items-center  my-3 ">
+          <Controller
+            control={control}
+            name="yearsExperience"
+            render={({ field }) => (
+              <Input
+                {...field}
+                type="number"
+                id="yearsExperience"
+                required
+                placeholder="Years of Experience"
+                className="w-70"
+              />
+            )}
+          />
+          {errors.yearsExperience && (
+            <p className="text-red-500 text-sm">
+              {errors.yearsExperience.message}
+            </p>
+          )}
+        </div>
+         <div className="flex flex-col items-center justify-center my-3 ">
+          <FormField
+            control={control}
+            name="expertiseArea"
+            defaultValue=""
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Expertise Area</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-70">
+                      <SelectValue placeholder="Select an Expertise Area" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {expertiseAreas.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className="w-full mt-1 my-3 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+          {errors.educationLevel && (
+            <p className="text-red-500 text-sm">
+              {errors.educationLevel.message}
+            </p>
+          )}
+        </div>
 
-
+        <div className="flex flex-col items-center justify-center  my-3 ">
+          <Controller
+            control={control}
+            name="professionalsURL"
+            render={({ field }) => (
+              <Input
+                {...field}
+                type="text"
+                id="professionalsURL"
+                required
+                placeholder="Professionals URls"
+                className="w-70"
+              />
+            )}
+          />
+          {errors.professionalsURL && (
+            <p className="text-red-500 text-sm">
+              {errors.professionalsURL.message}
+            </p>
+          )}
+        </div>
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+          className="w-full bg-[#16404D] text-white my-3 py-2 rounded-lg hover:bg-[#A6CDC6] transition duration-200 cursor-pointer"
         >
           Next
         </button>
+        <Progress className="w-80 my-8" value={66} />
       </form>
+
+
+
     </div>
   );
 };

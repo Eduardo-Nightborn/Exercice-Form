@@ -36,7 +36,7 @@ const App = () => {
   return (
     <FormProvider {...methods}>
       <BrowserRouter>
-        <div className="container mx-auto p-4">
+        <div className="flex justify-center p-12 bg-[#16404D] w-screen h-screen">
           <Routes>
             <Route path="" element={<Step1Form />} />
             <Route path="/step2" element={<Step2Form />} />

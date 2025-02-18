@@ -12,7 +12,7 @@ export interface PersonalInfo {
   email: string;
   birthDate: string;
   phone: string;
-  photo: FileList;
+  photo?: any;
 }
 
 export interface professionalInfo{
