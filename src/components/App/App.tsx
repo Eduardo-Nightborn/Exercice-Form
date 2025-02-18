@@ -9,7 +9,7 @@ const App = () => {
     <BrowserRouter>
       <div className="container mx-auto p-4">
         <Routes>
-          <Route path="/step1" element={<Step1Form />} />
+          <Route path="/" element={<Step1Form />} />
           <Route path="/step2" element={<Step2Form />} />
           <Route path="/step3" element={<Step3Form />} />
           <Route path="/success" element={<Success />} />
